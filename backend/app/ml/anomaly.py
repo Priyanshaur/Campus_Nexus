@@ -8,11 +8,16 @@ Design
   like one big sample, which is exactly the pattern we want to catch.
 * **Hard rule** on the live bucket: more than ``RULE_TOTAL`` changes or
   ``RULE_DELETES`` deletes in one bucket is always anomalous.
-* **IsolationForest** learns what busy-but-normal buckets look like. It only
-  judges buckets with at least ``MIN_EVENTS_FOR_ML`` events — a single upload,
-  however large, is never a burst — and only flags clearly isolated points
-  (``decision_function < SCORE_THRESHOLD``), so normal activity is not flagged
-  at a fixed rate.
+* **IsolationForest + magnitude gate.** The forest learns what busy-but-normal
+  buckets look like, but its scores plateau for points outside the training
+  range, so a bucket is flagged only if it is isolated
+  (``decision_function < SCORE_THRESHOLD``) *and* unusually large versus history
+  (robust z-score above ``Z_GATE``).
+* **Only destructive activity counts.** The learned rule judges a bucket only if
+  it has at least ``MIN_EVENTS_FOR_ML`` *modified or deleted* files. Ransomware
+  has to rewrite or delete existing data; a burst of brand-new files (someone
+  uploading a folder) cannot destroy anything and was the only source of false
+  alarms in simulation. Huge creation bursts are still caught by the hard rule.
 * **No poisoning.** Only closed buckets that were *not* flagged are used for
   training; the manual ``report-activity`` endpoint scores without recording.
 * **Never blocks requests.** Refits run in a background thread; scoring uses
@@ -36,7 +41,7 @@ WINDOW_SECONDS = 30
 HISTORY = 2000
 MIN_SAMPLES = 20          # closed buckets needed before the model is trusted
 REFIT_EVERY = 25          # refit after this many new training samples
-MIN_EVENTS_FOR_ML = 20    # smaller buckets cannot be a mass-change burst
+MIN_EVENTS_FOR_ML = 20    # modified+deleted files needed before the learned rule judges a bucket
 SCORE_THRESHOLD = -0.05   # decision_function below this = isolated
 Z_GATE = 2.5              # robust z-score (median/MAD) needed on a magnitude feature
 RULE_TOTAL = 500
@@ -172,8 +177,8 @@ def is_anomalous(n_modified: int, n_deleted: int, n_created: int, total_mb: floa
     total = n_modified + n_deleted + n_created
     if total > RULE_TOTAL or n_deleted > RULE_DELETES:
         return True, -1.0
-    if total < MIN_EVENTS_FOR_ML:
-        return False, 0.0
+    if n_modified + n_deleted < MIN_EVENTS_FOR_ML:
+        return False, 0.0           # too little destructive activity to be a burst
     with _lock:
         _load_locked()
         model, gate = _model, _gate

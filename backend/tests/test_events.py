@@ -41,9 +41,10 @@ def test_websocket_requires_token_and_filters_dm(client):
     c, hc, tc = make_user(client)
     import pytest
     from starlette.websockets import WebSocketDisconnect
-    with pytest.raises(WebSocketDisconnect):
-        with client.websocket_connect("/ws/events") as ws:
+    with pytest.raises(WebSocketDisconnect) as exc:
+        with client.websocket_connect("/ws/events?token=not-a-token") as ws:
             ws.receive_json()
+    assert exc.value.code == 4401       # the browser must see this code to log out
     dm = client.post("/api/messages/channels", json={"name": "", "type": "dm", "members": [b]}, headers=ha).json()
     with client.websocket_connect(f"/ws/events?token={tb}") as wsb, \
             client.websocket_connect(f"/ws/events?token={tc}") as wsc:

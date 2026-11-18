@@ -1,0 +1,38 @@
+{
+  "experiment": "e4_ranking",
+  "synthetic": true,
+  "note": "30 users (30 with a learned model); temporal split at 2026-11-05",
+  "environment": {
+    "python": "3.13.2",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 186 Stepping 3, GenuineIntel",
+    "server": "http://127.0.0.1:8000",
+    "when": "2026-11-18T14:06:26.340065+00:00"
+  },
+  "summary": {
+    "newest": {
+      "roc_auc": 0.5169671113695582,
+      "precision_at_3": 0.4679911699779249,
+      "n_test": 1917
+    },
+    "priority": {
+      "roc_auc": 0.6842227391163347,
+      "precision_at_3": 0.5507726269315673,
+      "n_test": 1917
+    },
+    "heuristic": {
+      "roc_auc": 0.7192992854187401,
+      "precision_at_3": 0.5507726269315673,
+      "n_test": 1917
+    },
+    "learned": {
+      "roc_auc": 0.7102003958713082,
+      "precision_at_3": 0.554083885209713,
+      "n_test": 1917
+    }
+  },
+  "users": 30,
+  "users_learned": 30,
+  "users_heuristic": 0,
+  "cutoff": "2026-11-05T01:04:32.927333"
+}

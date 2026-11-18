@@ -56,14 +56,16 @@ def promote_configured_admins(db: Session) -> None:
 
 @router.post("/register", response_model=UserOut)
 def register(data: UserCreate, db: Session = Depends(get_db)):
+    # Hash before touching the database: password hashing is deliberately slow,
+    # and holding a pooled connection during it exhausts the pool under load.
+    hashed = hash_password(data.password)
     if db.query(User).filter((User.username == data.username) | (User.email == data.email)).first():
         raise HTTPException(400, "User exists")
     # Role is never taken from the client. The very first account bootstraps
     # the deployment as admin; ADMIN_USERNAMES can name further admins.
     first_user = db.query(User.id).first() is None
     role = "admin" if (first_user or data.username in settings.admin_username_set) else "student"
-    u = User(username=data.username, email=data.email,
-             hashed_password=hash_password(data.password), role=role)
+    u = User(username=data.username, email=data.email, hashed_password=hashed, role=role)
     db.add(u)
     db.commit()
     db.refresh(u)
@@ -72,10 +74,13 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    u = db.query(User).filter(User.username == form.username).first()
-    if not u or not verify_password(form.password, u.hashed_password):
+    row = db.query(User.username, User.hashed_password).filter(User.username == form.username).first()
+    # Return the connection to the pool before the (slow) password check, so a
+    # class logging in at once doesn't exhaust the pool.
+    db.rollback()
+    if not row or not verify_password(form.password, row.hashed_password):
         raise HTTPException(401, "Bad credentials")
-    return Token(access_token=create_access_token({"sub": u.username}))
+    return Token(access_token=create_access_token({"sub": row.username}))
 
 
 @router.get("/users", response_model=list[UserOut])

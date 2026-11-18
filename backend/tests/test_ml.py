@@ -31,6 +31,15 @@ def test_small_buckets_are_never_ml_anomalies():
     assert anomaly.is_anomalous(0, 0, 1, 0.001) == (False, 0.0)
 
 
+def test_folder_upload_is_not_a_burst():
+    """Creating many new files destroys nothing; only rewrites/deletes count for the learned rule."""
+    anomaly.reset()
+    _feed_normal()
+    anomaly.fit_now()
+    assert anomaly.is_anomalous(0, 0, 60, 80.0)[0] is False
+    assert anomaly.is_anomalous(0, 0, 600, 80.0)[0] is True      # the hard rule still applies
+
+
 def test_isolation_forest_flags_burst_not_normal():
     anomaly.reset()
     _feed_normal()

@@ -1,0 +1,30 @@
+{
+  "experiment": "e3_burst_live",
+  "synthetic": false,
+  "note": "End-to-end through the file watcher; a fresh server only has the hard rule until it has >=20 windows of history",
+  "environment": {
+    "python": "3.13.2",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 186 Stepping 3, GenuineIntel",
+    "server": "http://127.0.0.1:8100",
+    "when": "2026-11-18T13:51:22.594505+00:00"
+  },
+  "runs": [
+    {
+      "rate": 30.0,
+      "files_written": 503,
+      "paused_after_s": 16.75439070000084
+    },
+    {
+      "rate": 30.0,
+      "files_written": 504,
+      "paused_after_s": 16.80553129999953
+    },
+    {
+      "rate": 30.0,
+      "files_written": 503,
+      "paused_after_s": 16.75216999999975
+    }
+  ],
+  "rate": 30.0
+}

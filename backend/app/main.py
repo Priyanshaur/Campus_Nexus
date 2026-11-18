@@ -138,6 +138,9 @@ async def ws_events(ws: WebSocket):
         user = auth.user_from_token(token, db) if token else None
         username, admin = (user.username, auth.is_admin(user)) if user else ("", False)
     if not user:
+        # Accept first so the browser actually receives the 4401 close code
+        # (closing before accept turns into a plain HTTP 403 the client can't read).
+        await ws.accept()
         await ws.close(code=4401, reason="invalid or expired token")
         return
     conn = await manager.connect(ws, username, admin)

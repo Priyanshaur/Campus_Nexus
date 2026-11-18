@@ -1,0 +1,71 @@
+{
+  "experiment": "e2_conflicts",
+  "synthetic": false,
+  "note": "Rates are % of uploads; 4 users x 2 devices, 200 uploads/run, p_sync=0.7; true conflict rate 27.8%",
+  "environment": {
+    "python": "3.13.2",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 186 Stepping 3, GenuineIntel",
+    "server": "http://127.0.0.1:8100",
+    "when": "2026-11-18T13:39:55.620354+00:00"
+  },
+  "params": {
+    "users": 4,
+    "devices": 2,
+    "steps": 200,
+    "p_sync": 0.7,
+    "repeats": 5,
+    "pace": 0.1
+  },
+  "runs": [
+    {
+      "uploads": 200,
+      "true_conflicts": 45,
+      "baseline_false": 108,
+      "baseline_missed": 6,
+      "ours_false": 0,
+      "ours_missed": 0,
+      "sync_pauses": 0
+    },
+    {
+      "uploads": 200,
+      "true_conflicts": 60,
+      "baseline_false": 100,
+      "baseline_missed": 9,
+      "ours_false": 0,
+      "ours_missed": 0,
+      "sync_pauses": 0
+    },
+    {
+      "uploads": 200,
+      "true_conflicts": 59,
+      "baseline_false": 92,
+      "baseline_missed": 8,
+      "ours_false": 0,
+      "ours_missed": 0,
+      "sync_pauses": 0
+    },
+    {
+      "uploads": 200,
+      "true_conflicts": 51,
+      "baseline_false": 110,
+      "baseline_missed": 3,
+      "ours_false": 0,
+      "ours_missed": 0,
+      "sync_pauses": 0
+    },
+    {
+      "uploads": 200,
+      "true_conflicts": 63,
+      "baseline_false": 99,
+      "baseline_missed": 6,
+      "ours_false": 0,
+      "ours_missed": 0,
+      "sync_pauses": 0
+    }
+  ],
+  "true_conflict_rate_pct": [
+    27.8,
+    3.7013511046643495
+  ]
+}
